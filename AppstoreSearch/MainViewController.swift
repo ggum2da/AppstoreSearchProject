@@ -14,8 +14,18 @@ class MainViewController: UITableViewController {
     
     let APPSTORE_SEARCH_DOMAIN = "https://itunes.apple.com/search"
     
-    var recentlyWords = [String]() // 최근 검색어
-    var filteredWords = [String]() // 필터링 검색어
+    var recentlyWords = [String]()      // 최근 검색어
+    var filteredWords = [String]()      // 필터링 검색어
+    var previewDatas = [[String:Any]]()   // 미리보기 데이터
+    
+    /// 검색을 하고있는지 완료했는지의 상태값
+    enum searchState {
+        case ready      // 준비
+        case typing     // 입력중
+        case searched   // 검색완료
+    }
+    var bSearchState:searchState = .ready
+    ///
     
     private let searchController: UISearchController = {
         
@@ -53,7 +63,9 @@ class MainViewController: UITableViewController {
     // MARK: - SearchKeyword
     func startSearchApps(value:String) {
         
-        let parameters:String = "?term=\(value)&country=kr&entity=software"
+        
+        let parameters:String = "?term=\(value)&country=kr&entity=software&limit=15"
+        
         let urlString = APPSTORE_SEARCH_DOMAIN+parameters
         let encodedUrl = urlString.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)
         
@@ -70,9 +82,20 @@ class MainViewController: UITableViewController {
                 if error == nil && data != nil {
                     
                     do {
-                        let result = try JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                        
-                        print("result === \(result)")
+                        if let result:[String:Any] = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as? [String:Any] {
+                            
+                            // 검색 상태값 = 검색완료
+                            self.bSearchState = .searched
+                            
+                            //print("results === \(result["results"])")
+                            
+                            // 미리보기 데이터 세팅
+                            self.previewDatas = result["results"] as! [[String : Any]]
+                            
+                            DispatchQueue.main.async {
+                                self.tableView.reloadData()
+                            }
+                        }
                     }
                     catch {
                         print("Fail App Search === \(error)")
@@ -100,16 +123,25 @@ class MainViewController: UITableViewController {
     // MARK: - TableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if self.searchController.isActive {
+        if bSearchState == .typing {
             return self.filteredWords.count
+        }
+        
+        else if bSearchState == .searched {
+            return self.previewDatas.count
         }
         
         return recentlyWords.count
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if self.searchController.isActive {
+        
+        if bSearchState == .typing {
             return 30
+        }
+        
+        else if bSearchState == .searched {
+            return 290
         }
         
         return 44
@@ -117,22 +149,37 @@ class MainViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        
-        if self.searchController.isActive {
-            cell.textLabel?.text = filteredWords[indexPath.row]
-            cell.textLabel?.textColor = .black
-            cell.textLabel?.font = .systemFont(ofSize: 15)
+        // 최근 검색어 Cell
+        if bSearchState == .ready {
+            
+            let cell:defaultCell = tableView.dequeueReusableCell(withIdentifier: "defaultCell", for: indexPath) as! defaultCell
+            cell.titleLabel.text = recentlyWords[indexPath.row]
+            
+            return cell
         }
         
-        else{
-            cell.textLabel?.text = recentlyWords[indexPath.row]
-            cell.textLabel?.textColor = .link
-            cell.textLabel?.font = .systemFont(ofSize: 20)
+        // 필터링 검색어 Cell
+        else if bSearchState == .typing {
+            
+            let cell:filteredCell = tableView.dequeueReusableCell(withIdentifier: "filteredCell", for: indexPath) as! filteredCell
+            cell.titleLabel.text = filteredWords[indexPath.row]
+            
+            return cell
+        }
+        
+        // 미리보기 Cell
+        else if bSearchState == .searched {
+            
+            let cell:previewCell = tableView.dequeueReusableCell(withIdentifier: "previewCell", for: indexPath) as! previewCell
+            
+            cell.titleLabel.text = "타이틀"
+            cell.subTitleLabel.text = "서브타이틀"
+            
+            return cell
         }
         
         
-        return cell
+        return UITableViewCell()
     }
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -181,15 +228,19 @@ extension MainViewController: UISearchBarDelegate {
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         
+        // 검색 상태값 = 입력 시작
+        self.bSearchState = .typing
+        
         return true
     }
     
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
-        
-        searchBar.text = ""
-        
-        // 최근 검색어 테이블 뷰 리로드
-        self.tableView.reloadData()
+
+//        // 검색 상태값 = 준비
+//        self.bSearchState = .ready
+//
+//        // 최근 검색어 테이블 뷰 리로드
+//        self.tableView.reloadData()
         
         return true
     }
@@ -226,6 +277,10 @@ extension MainViewController: UISearchBarDelegate {
     // 취소
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         
+        // 검색 상태값 = 준비
+        self.bSearchState = .ready
+        
+        self.tableView.reloadData()
         
     }
 }
@@ -233,6 +288,7 @@ extension MainViewController: UISearchBarDelegate {
 extension MainViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
+        
         guard let searchKeyword = searchController.searchBar.text else {
             return
         }

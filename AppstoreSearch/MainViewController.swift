@@ -12,6 +12,8 @@ import SnapKit
 
 class MainViewController: UITableViewController {
     
+    let APPSTORE_SEARCH_DOMAIN = "https://itunes.apple.com/search"
+    
     var recentlyWords = [String]() // 최근 검색어
     var filteredWords = [String]() // 필터링 검색어
     
@@ -24,6 +26,7 @@ class MainViewController: UITableViewController {
         
         return searchController
     }()
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -45,6 +48,52 @@ class MainViewController: UITableViewController {
         
         self.definesPresentationContext = true
         
+    }
+    
+    // MARK: - SearchKeyword
+    func startSearchApps(value:String) {
+        
+        let parameters:String = "?term=\(value)&country=kr&entity=software"
+        let urlString = APPSTORE_SEARCH_DOMAIN+parameters
+        let encodedUrl = urlString.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)
+        
+        if let url = URL(string: encodedUrl!) {
+            
+            print("App Search EncodedUrl === \(url)")
+            
+            var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+            request.httpMethod = "GET"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+            URLSession.shared.dataTask(with: request) { (data, response, error) in
+                
+                if error == nil && data != nil {
+                    
+                    do {
+                        let result = try JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+                        
+                        print("result === \(result)")
+                    }
+                    catch {
+                        print("Fail App Search === \(error)")
+                    }
+                    
+                }else{
+                    // error
+                }
+                
+            }.resume()
+        }
+    }
+    
+    func appstoreSearchUrl(keyword:String) -> URL {
+        
+        let urlString = "https://itunes.apple.com/search?term=\(keyword)&country=kr&entity=software"
+        let encodedUrl = urlString.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)
+        
+        let url = URL(string: encodedUrl!)
+        
+        return url!
     }
 
     
@@ -112,8 +161,22 @@ class MainViewController: UITableViewController {
         
         return headerView
     }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let cell = tableView.cellForRow(at: indexPath)
+        if let keyword = cell?.textLabel?.text {
+            searchController.searchBar.text = keyword
+            
+            // 검색 시작
+            self.startSearchApps(value: keyword)
+        }
+        
+    }
 }
 
+
+// MARK: - SearchBar
 extension MainViewController: UISearchBarDelegate {
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
@@ -134,39 +197,29 @@ extension MainViewController: UISearchBarDelegate {
     // 검색
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         
-        if let word = searchBar.text {
+        if let keyword = searchBar.text {
             
-            // 글자값 최소 1
-            if word.count > 0 {
+            // 글자값 최소 1 이상
+            if keyword.count > 0 {
                 
                 // 검색어 중복 체크 및 처리
-                for i in 0..<recentlyWords.count {
-                    
-                    let value = recentlyWords[i]
-                    
-                    if value == word {
-                        self.recentlyWords.remove(at: i)
-                        self.recentlyWords.insert(word, at: 0)
-                        
-                        print("recentlyWord same === \(recentlyWords)")
-                        UserDefaults.standard.set(self.recentlyWords, forKey: "recentlyWords")
-                        UserDefaults.standard.synchronize()
-                        return
-                    }
-                }
+                recentlyWords = recentlyWords.filter { !$0.contains(keyword) }
                 
-                // 중복된 값이 없으면 저장, 오버 체크 및 삭제
-                self.recentlyWords.insert(word, at: 0)
-                if self.recentlyWords.count > 100 { // 100개 이후에는 삭제
-                    self.recentlyWords.removeLast()
-                    
-                    print("recentlyWord over === \(recentlyWords)")
-                }
+                // 검색어 저장
+                recentlyWords.insert(keyword, at: 0)
+                
+                // 100개 이상이면 가장 오래된 데이터 삭제
+                if recentlyWords.count > 100 { recentlyWords.removeLast() }
+                
+                //print("search Btn click recentlyWord === \(recentlyWords)")
+                
+                // 배열 저장
+                UserDefaults.standard.set(self.recentlyWords, forKey: "recentlyWords")
+                UserDefaults.standard.synchronize()
+                
+                // 검색 시작
+                self.startSearchApps(value: keyword)
             }
-            
-            // 저장
-            UserDefaults.standard.set(self.recentlyWords, forKey: "recentlyWords")
-            UserDefaults.standard.synchronize()
         }
     }
     
@@ -184,11 +237,7 @@ extension MainViewController: UISearchResultsUpdating {
             return
         }
         
-        self.filteredWords = self.recentlyWords.filter({ (keyword) -> Bool in
-            
-            keyword.contains(searchKeyword)
-            
-        })
+        self.filteredWords = self.recentlyWords.filter({ $0.contains(searchKeyword) })
         
         self.tableView.reloadData()
     }

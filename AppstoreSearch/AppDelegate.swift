@@ -35,3 +35,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+func attachViewHorizontal(from view:UIView) -> CGFloat {
+    return view.frame.origin.x + view.frame.size.width
+}
+
+func attachViewVertical(from view:UIView) -> CGFloat {
+    return view.frame.origin.y + view.frame.size.height
+}

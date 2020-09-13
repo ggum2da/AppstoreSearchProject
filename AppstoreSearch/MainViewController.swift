@@ -16,7 +16,7 @@ class MainViewController: UITableViewController {
     
     var recentlyWords = [String]()      // 최근 검색어
     var filteredWords = [String]()      // 필터링 검색어
-    var previewDatas = [[String:Any]]()   // 미리보기 데이터
+    var results = [AppDataModel]()   // 미리보기 데이터
     
     /// 검색을 하고있는지 완료했는지의 상태값
     enum searchState {
@@ -38,8 +38,12 @@ class MainViewController: UITableViewController {
     }()
     
     
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        //let path = NSHomeDirectory()
+        //print(path)
         
     }
     
@@ -56,6 +60,7 @@ class MainViewController: UITableViewController {
         self.navigationItem.searchController = searchController
         self.navigationItem.hidesSearchBarWhenScrolling = false
         
+        // definesPresentationContext를 true로 설정하여 UISearchController가 활성화되어있는 동안 사용자가 다른 뷰 컨트롤러로 이동하면 search bar가 화면에 남아 있지 않도록 합니다.
         self.definesPresentationContext = true
         
     }
@@ -63,8 +68,7 @@ class MainViewController: UITableViewController {
     // MARK: - SearchKeyword
     func startSearchApps(value:String) {
         
-        
-        let parameters:String = "?term=\(value)&country=kr&entity=software&limit=15"
+        let parameters:String = "?term=\(value)&country=kr&media=software&entity=software&limit=25"
         
         let urlString = APPSTORE_SEARCH_DOMAIN+parameters
         let encodedUrl = urlString.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)
@@ -82,18 +86,37 @@ class MainViewController: UITableViewController {
                 if error == nil && data != nil {
                     
                     do {
-                        if let result:[String:Any] = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as? [String:Any] {
+                        if let searchDatas:[String:Any] = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as? [String:Any] {
                             
                             // 검색 상태값 = 검색완료
                             self.bSearchState = .searched
                             
+                            // 검색결과 리스트 초기화
+                            self.results.removeAll()
+                            
                             //print("results === \(result["results"])")
                             
-                            // 미리보기 데이터 세팅
-                            self.previewDatas = result["results"] as! [[String : Any]]
+                            // 앱 검색 데이터 세팅
+                            //self.previewDatas = searchDatas["results"] as! [[String : Any]]
+                            let list = searchDatas["results"] as! [[String : Any]]
                             
+                            for item in list {
+                                
+                                let data = try! JSONSerialization.data(withJSONObject: item, options: .prettyPrinted)
+                                
+                                let jsonDecoder = JSONDecoder()
+                                let decodedData = try! jsonDecoder.decode(AppDataModel.self, from: data)
+                                self.results.append(decodedData)
+                            }
+                
                             DispatchQueue.main.async {
+                                
+                                // 검색 입력 중지
+                                self.searchController.searchBar.endEditing(true)
+                                self.searchController.isActive = true
+                                
                                 self.tableView.reloadData()
+                                self.view.layoutIfNeeded()
                             }
                         }
                     }
@@ -109,17 +132,6 @@ class MainViewController: UITableViewController {
         }
     }
     
-    func appstoreSearchUrl(keyword:String) -> URL {
-        
-        let urlString = "https://itunes.apple.com/search?term=\(keyword)&country=kr&entity=software"
-        let encodedUrl = urlString.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)
-        
-        let url = URL(string: encodedUrl!)
-        
-        return url!
-    }
-
-    
     // MARK: - TableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
@@ -128,10 +140,10 @@ class MainViewController: UITableViewController {
         }
         
         else if bSearchState == .searched {
-            return self.previewDatas.count
+            return self.results.count
         }
         
-        return recentlyWords.count
+        return self.recentlyWords.count
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -152,8 +164,10 @@ class MainViewController: UITableViewController {
         // 최근 검색어 Cell
         if bSearchState == .ready {
             
+            tableView.separatorStyle = .singleLine
+            
             let cell:defaultCell = tableView.dequeueReusableCell(withIdentifier: "defaultCell", for: indexPath) as! defaultCell
-            cell.titleLabel.text = recentlyWords[indexPath.row]
+            cell.titleLabel.text = self.recentlyWords[indexPath.row]
             
             return cell
         }
@@ -161,8 +175,10 @@ class MainViewController: UITableViewController {
         // 필터링 검색어 Cell
         else if bSearchState == .typing {
             
+            tableView.separatorStyle = .singleLine
+            
             let cell:filteredCell = tableView.dequeueReusableCell(withIdentifier: "filteredCell", for: indexPath) as! filteredCell
-            cell.titleLabel.text = filteredWords[indexPath.row]
+            cell.titleLabel.text = self.filteredWords[indexPath.row]
             
             return cell
         }
@@ -172,8 +188,30 @@ class MainViewController: UITableViewController {
             
             let cell:previewCell = tableView.dequeueReusableCell(withIdentifier: "previewCell", for: indexPath) as! previewCell
             
-            cell.titleLabel.text = "타이틀"
-            cell.subTitleLabel.text = "서브타이틀"
+            // 선 없애기
+            tableView.separatorStyle = .none
+            
+            let appData = self.results[indexPath.row]
+            
+            cell.titleLabel.text = appData.trackName
+            cell.subTitleLabel.text = appData.sellerName
+            
+            cell.appIcon.downloadImageWithLoad(imageUrl: appData.artworkUrl100)
+            
+            let screenshotUrls = appData.screenshotUrls
+            for i in 0..<screenshotUrls.count {
+                
+                if i > 2 { break }
+                
+                let url = screenshotUrls[i]
+                
+                switch i {
+                case 0: cell.screenshot_1.downloadImageWithLoad(imageUrl: url)
+                case 1: cell.screenshot_2.downloadImageWithLoad(imageUrl: url)
+                case 2: cell.screenshot_3.downloadImageWithLoad(imageUrl: url)
+                default: break
+                }
+            }
             
             return cell
         }
@@ -211,14 +249,40 @@ class MainViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let cell = tableView.cellForRow(at: indexPath)
-        if let keyword = cell?.textLabel?.text {
-            searchController.searchBar.text = keyword
-            
-            // 검색 시작
-            self.startSearchApps(value: keyword)
+        // 미리보기 Cell
+        if bSearchState == .ready {
+            let cell = tableView.cellForRow(at: indexPath) as! defaultCell
+            if let keyword = cell.titleLabel.text {
+                searchController.searchBar.isSearchResultsButtonSelected = true
+                searchController.searchBar.text = cell.titleLabel.text
+                
+                // 검색 시작
+                self.startSearchApps(value: keyword)
+            }
         }
         
+        else if bSearchState == .typing {
+            let cell = tableView.cellForRow(at: indexPath) as! filteredCell
+            if let keyword = cell.titleLabel.text {
+                searchController.searchBar.text = cell.titleLabel.text
+                
+                // 검색 시작
+                self.startSearchApps(value: keyword)
+            }
+        }
+        
+        else if bSearchState == .searched {
+            
+            // AppDetailViewController get
+            let detailViewController:AppDetailViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "AppDetailViewController") as! AppDetailViewController
+
+            // 선택한 Data set
+            let result = self.results[indexPath.row]
+            detailViewController.appData = result
+
+            self.navigationController?.pushViewController(detailViewController, animated: true)
+        
+        }
     }
 }
 
@@ -226,23 +290,9 @@ class MainViewController: UITableViewController {
 // MARK: - SearchBar
 extension MainViewController: UISearchBarDelegate {
     
-    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         // 검색 상태값 = 입력 시작
         self.bSearchState = .typing
-        
-        return true
-    }
-    
-    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
-
-//        // 검색 상태값 = 준비
-//        self.bSearchState = .ready
-//
-//        // 최근 검색어 테이블 뷰 리로드
-//        self.tableView.reloadData()
-        
-        return true
     }
     
     // 검색

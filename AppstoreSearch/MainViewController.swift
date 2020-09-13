@@ -200,8 +200,8 @@ class MainViewController: UITableViewController {
             cell.openBtn.accessibilityIdentifier = String(appData.trackId)
             
             // rating
-            //let view = self.rateWithStar()
-            //cell.ratingView.addSubview(view)
+            let view = self.rateWithStar(rate:appData.averageUserRating)
+            cell.ratingView.addSubview(view)
             
             
             // 평가 갯수
@@ -325,27 +325,60 @@ class MainViewController: UITableViewController {
         return false
     }
     
-    func rateWithStar() -> UIView {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 70, height: 21))
-        view.backgroundColor = .blue
+    func rateWithStar(rate:Double) -> UIView {
+
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 60, height: 21))
         
-        let emptyStar = UIImage(named: "fullStar")
-        let emptyImgView = UIImageView(image: emptyStar)
-        emptyImgView.backgroundColor = .white
-        emptyImgView.frame = CGRect(x: 0, y: 2, width: 16, height: 16)
-        view.addSubview(emptyImgView)
+        let fullCount = 5
+        let fullStarCount = floor(rate)
+        let halfStarWidth = round((rate-fullStarCount) * 100) / 100
+        //let emptyStarCount = floor(Double(fullCount) - fullStarCount - halfStarWidth)
+        
+        let fullStar = UIImage(named: "fullStar")
+        let emptyStar = UIImage(named: "emptyStar")
+        
+        var star = UIImageView()
+        
+        var image = UIImage()
+        
+        // fullStar와 emptyStar를 그려준다
+        for i in 0..<fullCount {
+            if i < Int(fullStarCount) {
+                image = fullStar!
+            }else {
+                image = emptyStar!
+            }
+            
+            let imageView = UIImageView(image: image)
+            imageView.backgroundColor = .white
+            imageView.frame = CGRect(x: attachViewHorizontal(from: star)+2, y: 5, width: 10, height: 10)
+            view.addSubview(imageView)
+
+            imageView.tag = 100+i
+            
+            star = imageView
+        }
+        
+        // halfStar가 이미지를 emptyStar 위에 덮어준다
+        if let emptyStarImageView = view.viewWithTag(100+Int(fullStarCount)) {
+            
+            let offsetX = emptyStarImageView.frame.origin.x
+            
+            let halfStarImageView = UIImageView(image: fullStar)
+            halfStarImageView.backgroundColor = .white
+            halfStarImageView.frame = CGRect(x: offsetX, y: 5, width: 10, height: 10)
+            view.addSubview(halfStarImageView)
+
+            let mask = CALayer()
+            mask.contents = fullStar
+            mask.frame = CGRect(x: 0, y: 0, width: 10*halfStarWidth, height: 10)
+            mask.backgroundColor = UIColor.black.cgColor
+            halfStarImageView.layer.mask = mask
+            halfStarImageView.layer.masksToBounds = true
+        }
         
         return view
-        /*
-        let fullStar = UIImage(named: "emptyStar")
-        let mask = CALayer()
-        mask.contents = fullStar
-        mask.frame = CGRect(x: 0, y: 0, width: fullStar!.size.width/2, height: fullStar!.size.width)
-        mask.backgroundColor = UIColor.red.cgColor
-        mask.zPosition = 1001
-        emptyImgView.layer.mask = mask
-        emptyImgView.layer.masksToBounds = true
- */
+
     }
 }
 

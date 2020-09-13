@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DescriptionView" customModule="AppstoreSearch" customModuleProvider="target">
+            <connections>
+                <outlet property="label" destination="WlB-Vs-B0T" id="daG-cY-eMn"/>
+                <outlet property="moreBtn" destination="l9F-Zh-gpb" id="VUo-iY-fZU"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" restorationIdentifier="DescriptionView" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WlB-Vs-B0T">
+                    <rect key="frame" x="0.0" y="44" width="414" height="818"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="l9F-Zh-gpb">
+                    <rect key="frame" x="324" y="832" width="70" height="30"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="Ja1-A0-zIl"/>
+                        <constraint firstAttribute="width" constant="70" id="hhr-Nk-RsQ"/>
+                    </constraints>
+                    <state key="normal" title="더 보기"/>
+                </button>
+            </subviews>
+            <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="WlB-Vs-B0T" secondAttribute="bottom" id="CAY-8t-BOJ"/>
+                <constraint firstItem="WlB-Vs-B0T" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="bL6-Ki-XC8"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="WlB-Vs-B0T" secondAttribute="trailing" id="cDj-qT-EHe"/>
+                <constraint firstItem="WlB-Vs-B0T" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="h1R-Mw-mfW"/>
+                <constraint firstItem="l9F-Zh-gpb" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="v5U-gy-NPW"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="l9F-Zh-gpb" secondAttribute="trailing" constant="20" id="zjH-WD-RR2"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="34.782608695652179" y="34.821428571428569"/>
+        </view>
+    </objects>
+</document>

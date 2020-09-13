@@ -24,7 +24,8 @@ struct AppDataModel: Codable {
     var price:Double                // 가격
     var description:String          // 앱 설명
     var version:String              // 앱 버전
-    var userRatingCount:Int      // 유저 평가
+    var userRatingCount:Int         // 유저 평가
+    var trackId:Int                 // trackId
     
     var genres:[String]
     var screenshotUrls:[String]    // 스크린샷

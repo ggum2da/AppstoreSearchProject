@@ -26,6 +26,7 @@ class previewCell: UITableViewCell {
     @IBOutlet weak var subTitleLabel: UILabel!
     @IBOutlet weak var openBtn: UIButton!
     @IBOutlet weak var ratingLabel: UILabel!
+    @IBOutlet weak var ratingView: UIView!
     
     @IBOutlet weak var screenshot_1: UIImageView!
     @IBOutlet weak var screenshot_2: UIImageView!

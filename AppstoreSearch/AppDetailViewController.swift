@@ -14,6 +14,7 @@ class AppDetailViewController: UIViewController {
     var appData:AppDataModel?
     
     @IBOutlet weak var mainScrollView: UIScrollView!
+    @IBOutlet weak var mainContentView: UIView!
     
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
@@ -36,6 +37,10 @@ class AppDetailViewController: UIViewController {
     @IBOutlet weak var screenScrContentView: UIView!
     var screenshotImgView:UIImageView?
     
+    @IBOutlet weak var descriptionView: DescriptionView!
+    
+    
+    // MARK: -
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -49,7 +54,14 @@ class AppDetailViewController: UIViewController {
         self.titleLabel.text = appData?.trackName
         self.subTitleLabel.text = appData?.artistName
         self.versionLabel.text = appData?.version
+        
+        // 업데이트 내용
         self.releaseNoteLabel.text = appData?.releaseNotes
+        
+        // 앱 소개 내용
+        self.descriptionView.label.text = appData?.description
+        self.descriptionView.moreBtn.addTarget(self, action: #selector(moreAction), for: .touchUpInside)
+        self.descriptionView.moreBtn.accessibilityIdentifier = "descriptionView"
         
         self.iconImageView.downloadImageWithLoad(imageUrl: appData?.artworkUrl512)
         
@@ -80,9 +92,18 @@ class AppDetailViewController: UIViewController {
                     maker.width.equalTo(width)
                 }
             }
-            
         }
-        
     }
     
+    @objc func moreAction(sender:UIButton) {
+        
+        if sender.accessibilityIdentifier == "descriptionView" {
+            self.descriptionView.label.numberOfLines = 0
+        }else{
+            self.releaseNoteLabel.numberOfLines = 0
+        }
+        
+        sender.isHidden = true
+        
+    }
 }

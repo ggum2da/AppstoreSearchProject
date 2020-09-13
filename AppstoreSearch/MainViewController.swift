@@ -13,6 +13,7 @@ import SnapKit
 class MainViewController: UITableViewController {
     
     let APPSTORE_SEARCH_DOMAIN = "https://itunes.apple.com/search"
+    let APP_OPEN_URL = "itms-apps://itunes.apple.com/app/apple-store/%@?mt=8"
     
     var recentlyWords = [String]()      // 최근 검색어
     var filteredWords = [String]()      // 필터링 검색어
@@ -37,8 +38,6 @@ class MainViewController: UITableViewController {
         return searchController
     }()
     
-    
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -62,7 +61,6 @@ class MainViewController: UITableViewController {
         
         // definesPresentationContext를 true로 설정하여 UISearchController가 활성화되어있는 동안 사용자가 다른 뷰 컨트롤러로 이동하면 search bar가 화면에 남아 있지 않도록 합니다.
         self.definesPresentationContext = true
-        
     }
     
     // MARK: - SearchKeyword
@@ -196,8 +194,33 @@ class MainViewController: UITableViewController {
             cell.titleLabel.text = appData.trackName
             cell.subTitleLabel.text = appData.sellerName
             
+            // Open 버튼
+            let btnTitle = self.openApps(id: String(appData.trackId)) == false ? "받기" : "열기"
+            cell.openBtn.setTitle(btnTitle, for: .normal)
+            cell.openBtn.accessibilityIdentifier = String(appData.trackId)
+            
+            // rating
+            //let view = self.rateWithStar()
+            //cell.ratingView.addSubview(view)
+            
+            
+            // 평가 갯수
+            var ratingCount = Double(appData.userRatingCount)
+            var ratingStr = String(format: "%.0f", ratingCount)
+            if ratingCount > 10000 {
+                ratingCount = ratingCount/10000
+                ratingStr = String(format: "%.1f만", ratingCount)
+            }else if ratingCount > 1000 {
+                ratingCount = ratingCount/1000
+                ratingStr = String(format: "%.1f천", ratingCount)
+            }
+            cell.ratingLabel.text = ratingStr
+            
+            // 앱 아이콘
             cell.appIcon.downloadImageWithLoad(imageUrl: appData.artworkUrl100)
             
+            
+            // 스크린샷
             let screenshotUrls = appData.screenshotUrls
             for i in 0..<screenshotUrls.count {
                 
@@ -283,6 +306,46 @@ class MainViewController: UITableViewController {
             self.navigationController?.pushViewController(detailViewController, animated: true)
         
         }
+    }
+    
+    // MARK: - Button Action
+    @IBAction func openAction(sender:UIButton) {
+        let id = String(sender.accessibilityIdentifier!)
+        let url = String(format: APP_OPEN_URL, id)
+        UIApplication.shared.open(URL(string: url)!, options: [:], completionHandler: nil)
+    }
+    
+    // MARK: - Check Installed App
+    func openApps(id:String) -> Bool {
+        //itms-apps://itunes.apple.com/app/apple-store/%@?mt=8"
+        let url = String(format: APP_OPEN_URL, id)
+        if UIApplication.shared.canOpenURL(URL(string: url)!) {
+            return true
+        }
+        return false
+    }
+    
+    func rateWithStar() -> UIView {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 70, height: 21))
+        view.backgroundColor = .blue
+        
+        let emptyStar = UIImage(named: "fullStar")
+        let emptyImgView = UIImageView(image: emptyStar)
+        emptyImgView.backgroundColor = .white
+        emptyImgView.frame = CGRect(x: 0, y: 2, width: 16, height: 16)
+        view.addSubview(emptyImgView)
+        
+        return view
+        /*
+        let fullStar = UIImage(named: "emptyStar")
+        let mask = CALayer()
+        mask.contents = fullStar
+        mask.frame = CGRect(x: 0, y: 0, width: fullStar!.size.width/2, height: fullStar!.size.width)
+        mask.backgroundColor = UIColor.red.cgColor
+        mask.zPosition = 1001
+        emptyImgView.layer.mask = mask
+        emptyImgView.layer.masksToBounds = true
+ */
     }
 }
 

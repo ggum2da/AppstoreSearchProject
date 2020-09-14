@@ -9,9 +9,9 @@
 import Foundation
 import UIKit
 
-class AppDetailViewController: UIViewController {
+class AppDetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    var appData:AppDataModel?
+    var appData:AppDataModel!
     
     // 메인 스크롤뷰, 컨텐츠 뷰
     @IBOutlet weak var mainScrollView: UIScrollView!
@@ -21,7 +21,6 @@ class AppDetailViewController: UIViewController {
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subTitleLabel: UILabel!
-    @IBOutlet weak var openBtn: UIButton!
     
     // 평가 및 별점, 순위 및 카테고리, 연령
     @IBOutlet weak var infoBackView: UIView!
@@ -29,15 +28,12 @@ class AppDetailViewController: UIViewController {
     @IBOutlet weak var ratingView: UIView!
     @IBOutlet weak var ratingLabel: UILabel!
     
-    @IBOutlet weak var rankLabel: UILabel!
     @IBOutlet weak var cateLabel: UILabel!
     
     @IBOutlet weak var contentAgeLabel: UILabel!
     
-    // 버전, 시간, 버전 기록 버튼
+    // 버전
     @IBOutlet weak var versionLabel: UILabel!
-    @IBOutlet weak var agoLabel: UILabel!
-    @IBOutlet weak var historyBtn: UIButton!
     
     // 업데이트 내용
     @IBOutlet weak var releaseNoteLabel: UILabel!
@@ -47,6 +43,10 @@ class AppDetailViewController: UIViewController {
     @IBOutlet weak var screenScrView: UIScrollView!
     @IBOutlet weak var screenScrContentView: UIView!
     var screenshotImgView:UIImageView?
+    
+    // 정보
+    @IBOutlet weak var infoTableView: UITableView!
+    var infoData:[[Any]]?
     
     @IBOutlet weak var descriptionView: DescriptionView!
     
@@ -63,29 +63,31 @@ class AppDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.titleLabel.text = appData?.trackName
-        self.subTitleLabel.text = appData?.artistName
-        self.versionLabel.text = appData?.version
-        self.openBtn.accessibilityIdentifier = String(appData?.trackId ?? 0)
+        // 하단 정보 데이터 세팅 및 테이블뷰 로드
+        self.setInfoData()
+        
+        self.titleLabel.text = appData.trackName
+        self.subTitleLabel.text = appData.artistName
+        self.versionLabel.text = "버전 " + appData.version
+        //self.openBtn.accessibilityIdentifier = String(appData.trackId)
         
         // 평균 평가 점수 및 별점
-        let rating = round(appData!.averageUserRating * 10) / 10
+        let rating = round(appData.averageUserRating * 10) / 10
         self.avrRatingLabel.text = String(rating)
-        let view = rateWithStar(frame: CGRect(x: 0, y: 0, width: 100, height: 25), rate: appData?.averageUserRating ?? 0)
+        let view = rateWithStar(frame: CGRect(x: 0, y: 0, width: 100, height: 25), rate: appData.averageUserRating)
         self.ratingView.addSubview(view)
         
         // 누적 평점
-        self.ratingLabel.text = ratingNum(rate: Double(appData?.userRatingCount ?? 0))+"개의 평가"
+        self.ratingLabel.text = ratingNum(rate: Double(appData.userRatingCount)) + "개의 평가"
         
-        // 앱 순위 및 카테고리
-        
+        // 카테고리
+        self.cateLabel.text = appData.genres[0]
         
         // 연령
-        
+        self.contentAgeLabel.text = appData.trackContentRating
         
         // 업데이트 내용
-        if appData?.releaseNotes == nil || appData?.releaseNotes == "" {
-            
+        if appData.releaseNotes == "" {
             self.releaseNoteLabel.isHidden = true
             self.releaseNoteLabel.snp.updateConstraints { (maker) in
                 maker.height.equalTo(1)
@@ -94,14 +96,15 @@ class AppDetailViewController: UIViewController {
             self.releaseNoteLabel.text = appData?.releaseNotes
         }
         
-        
         // 앱 소개 내용
         self.descriptionView.label.text = appData?.description
         self.descriptionView.moreBtn.addTarget(self, action: #selector(moreAction), for: .touchUpInside)
-        self.descriptionView.moreBtn.accessibilityIdentifier = "descriptionView"
+        //self.descriptionView.moreBtn.accessibilityIdentifier = "descriptionView"
         
+        // 앱 아이콘 및 스샷 이미지 폴더 이름 = trackId
         trackId = String(appData?.trackId ?? 0)
         
+        // 앱 아이콘, 스크린샷 다운로드 및 로드
         self.iconImageView.downloadAppIcon(imageUrl: appData?.artworkUrl512, id: trackId)
         
         if let urls = appData?.screenshotUrls {
@@ -135,26 +138,92 @@ class AppDetailViewController: UIViewController {
                 }
             }
         }
+        
+    }
+    
+    func setInfoData() {
+        DispatchQueue.global().async {
+            guard let data = self.appData else { return }
+            
+            let b = Double(data.fileSizeBytes)
+            let fileSizeStr = String(format: "%.01fMB", b! * 0.000001) // MB 치환
+            
+            let category = data.genres[0]
+            
+            self.infoData = [["제공자",data.artistName],
+                             ["크기" ,fileSizeStr],
+                             ["카테고리", category],
+                             ["호환성", "iOS"+data.minimumOsVersion+"이상 필요"],
+                             ["언어",data.languageCodesISO2A[0]],
+                             ["연령 등급",data.trackContentRating],
+                             ["저작권","©"+data.artistName]]
+            
+            DispatchQueue.main.async {
+                self.infoTableView.reloadData()
+            }
+        }
+    }
+    
+    // MARK: - TableView
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        return infoData == nil ? 0 : infoData!.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath)
+        
+        guard let data = infoData else { return UITableViewCell() }
+        
+        cell.textLabel?.text = data[indexPath.row][0] as? String
+        cell.detailTextLabel?.text = data[indexPath.row][1] as? String
+        
+        return cell
+    }
+    
+    
+    //MARK: - Gesture Action
+    @IBAction func tappedAction(_ sender: Any) {
+        
+        // ImageListViewController get
+        let imageListViewController:ImageListViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ImageListViewController") as! ImageListViewController
+
+        // 선택한 Data set
+        let imageList = appData.screenshotUrls
+        imageListViewController.imageList = imageList
+        imageListViewController.trackId = trackId
+
+        self.navigationController?.pushViewController(imageListViewController, animated: true)
+        
     }
     
     
     // MARK: - Button Action
     @objc func moreAction(sender:UIButton) {
         
-        if sender.accessibilityIdentifier == "descriptionView" {
-            self.descriptionView.label.numberOfLines = 0
-        }else{
-            self.releaseNoteLabel.numberOfLines = 0
-        }
+        self.descriptionView.label.numberOfLines = 0
         
         sender.isHidden = true
         
     }
     
-    // MARK: - Button Action
+    // App open button
     @IBAction func openAction(sender:UIButton) {
-        let id = String(sender.accessibilityIdentifier!)
+        let id = String(appData.trackId)
         let url = String(format: APP_OPEN_URL, id)
         UIApplication.shared.open(URL(string: url)!, options: [:], completionHandler: nil)
     }
+    
+    // share app url
+    @IBAction func shareAction(_ sender: Any) {
+        
+        let id = String(appData.trackId)
+        let url = String(format: APP_OPEN_URL, id)
+        let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        activityViewController.excludedActivityTypes = [UIActivity.ActivityType.addToReadingList]
+        activityViewController.popoverPresentationController?.sourceView = self.view
+        self.present(activityViewController, animated: true, completion: nil)
+    }
+    
 }

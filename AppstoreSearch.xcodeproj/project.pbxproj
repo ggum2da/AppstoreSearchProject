@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1EC41010CF3237BA36C146FA /* Pods_AppstoreSearch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5542BF0922D36CA9B35DFB04 /* Pods_AppstoreSearch.framework */; };
+		7015D2E1250FAB1C00B04698 /* ImageListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7015D2E0250FAB1C00B04698 /* ImageListViewController.swift */; };
 		7017930E250A6533007A8A44 /* TableViewCellTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7017930D250A6533007A8A44 /* TableViewCellTypes.swift */; };
 		70230EC2250A824000CB316D /* UIImageView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70230EC1250A824000CB316D /* UIImageView+Extension.swift */; };
 		70233310250E5247009A84A9 /* DescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7023330F250E5247009A84A9 /* DescriptionView.swift */; };
@@ -24,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		5542BF0922D36CA9B35DFB04 /* Pods_AppstoreSearch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppstoreSearch.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7015D2E0250FAB1C00B04698 /* ImageListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageListViewController.swift; sourceTree = "<group>"; };
 		7017930D250A6533007A8A44 /* TableViewCellTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCellTypes.swift; sourceTree = "<group>"; };
 		70230EC1250A824000CB316D /* UIImageView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extension.swift"; sourceTree = "<group>"; };
 		7023330F250E5247009A84A9 /* DescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionView.swift; sourceTree = "<group>"; };
@@ -99,6 +101,7 @@
 				702D0137250911C700C05D25 /* MainViewController.swift */,
 				7017930D250A6533007A8A44 /* TableViewCellTypes.swift */,
 				708357E6250E094200BF48B3 /* AppDetailViewController.swift */,
+				7015D2E0250FAB1C00B04698 /* ImageListViewController.swift */,
 				7023330F250E5247009A84A9 /* DescriptionView.swift */,
 				70233313250E52CA009A84A9 /* DescriptionView.xib */,
 				708E06862508FCAF00F1F140 /* Main.storyboard */,
@@ -247,6 +250,7 @@
 				70233310250E5247009A84A9 /* DescriptionView.swift in Sources */,
 				70CF82B2250CE6BD007A4A92 /* AppDataModel.swift in Sources */,
 				708E06832508FCAF00F1F140 /* SceneDelegate.swift in Sources */,
+				7015D2E1250FAB1C00B04698 /* ImageListViewController.swift in Sources */,
 				702D0138250911C700C05D25 /* MainViewController.swift in Sources */,
 				7017930E250A6533007A8A44 /* TableViewCellTypes.swift in Sources */,
 			);

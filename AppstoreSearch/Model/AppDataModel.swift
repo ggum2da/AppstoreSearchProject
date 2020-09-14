@@ -19,7 +19,7 @@ struct AppDataModel: Codable {
     var fileSizeBytes:String        // 파일크기
     var releaseNotes:String         // 업데이트 안내
     var formattedPrice:String       //
-    var minimumOsVersion:String
+    var minimumOsVersion:String     // 호환성
     var artistName:String           // 개발자
     var price:Double                // 가격
     var description:String          // 앱 설명
@@ -27,11 +27,12 @@ struct AppDataModel: Codable {
     var userRatingCount:Int         // 유저 평가
     var trackId:Int                 // trackId
     
-    var genres:[String]
-    var screenshotUrls:[String]    // 스크린샷
+    var genres:[String]             // 카테고리
+    var screenshotUrls:[String]     // 스크린샷
     var languageCodesISO2A:[String] // 언어
     var bundleId:String             // 번들 ID
     
+    var currentVersionReleaseDate:String // 현재버전 릴리즈한 시간
     
 //    init(from decoder: Decoder) throws {
 //        genres = try decoder.singleValueContainer().decode([String].self)

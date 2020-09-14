@@ -304,17 +304,7 @@ class MainViewController: UITableViewController {
         let url = String(format: APP_OPEN_URL, id)
         UIApplication.shared.open(URL(string: url)!, options: [:], completionHandler: nil)
     }
-    
-//    // MARK: - Check Installed App
-//    func openApps(id:String) -> Bool {
-//        //itms-apps://itunes.apple.com/app/apple-store/%@?mt=8"
-//        let url = String(format: APP_OPEN_URL, id)
-//        if UIApplication.shared.canOpenURL(URL(string: url)!) {
-//            return true
-//        }
-//        return false
-//    }
-    
+
 }
 
 

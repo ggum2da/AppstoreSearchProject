@@ -152,7 +152,7 @@ class MainViewController: UITableViewController {
         }
         
         else if bSearchState == .searched {
-            return 290
+            return 350
         }
         
         return 44

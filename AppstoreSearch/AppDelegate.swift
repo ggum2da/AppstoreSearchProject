@@ -54,6 +54,70 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 let APP_OPEN_URL = "itms-apps://itunes.apple.com/app/apple-store/%@?mt=8"
 
+// MARK: - ratingView
+func rateWithStar(frame:CGRect, rate:Double) -> UIView {
+
+    let view = UIView(frame: frame)//CGRect(x: 0, y: 0, width: 60, height: 21))
+    
+    let fullCount = 5
+    let fullStarCount = floor(rate)
+    let halfStarWidth = round((rate-fullStarCount) * 100) / 100
+    //let emptyStarCount = floor(Double(fullCount) - fullStarCount - halfStarWidth)
+    
+    let fullStar = UIImage(named: "fullStar")
+    let emptyStar = UIImage(named: "emptyStar")
+    
+    var star = UIImageView()
+    
+    var image = UIImage()
+    
+    let width = frame.size.width/5
+    let height = frame.size.height-10
+    let gapMargin = floor(width/5)
+    
+    // fullStar와 emptyStar를 그려준다
+    for i in 0..<fullCount {
+        if i < Int(fullStarCount) {
+            image = fullStar!
+        }else {
+            image = emptyStar!
+        }
+        
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: attachViewHorizontal(from: star)+gapMargin, y: 5, width: width, height: height)
+        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = .systemGray4
+        view.addSubview(imageView)
+
+        imageView.tag = 100+i
+        
+        star = imageView
+    }
+    
+    // halfStar가 이미지를 emptyStar 위에 덮어준다
+    if let emptyStarImageView = view.viewWithTag(100+Int(fullStarCount)) {
+        
+        let offsetX = emptyStarImageView.frame.origin.x
+        
+        let halfStarImageView = UIImageView(image: fullStar)
+        halfStarImageView.frame = CGRect(x: offsetX, y: 5, width: width, height: height)
+        halfStarImageView.image = halfStarImageView.image?.withRenderingMode(.alwaysTemplate)
+        halfStarImageView.tintColor = .systemGray4
+        view.addSubview(halfStarImageView)
+
+        let mask = CALayer()
+        mask.contents = fullStar
+        mask.frame = CGRect(x: 0, y: 0, width: width*CGFloat(halfStarWidth), height: height)
+        mask.backgroundColor = UIColor.black.cgColor
+        halfStarImageView.layer.mask = mask
+        halfStarImageView.layer.masksToBounds = true
+    }
+    
+    return view
+
+}
+
+// MARK: - View 이어붙이기
 func attachViewHorizontal(from view:UIView) -> CGFloat {
     return view.frame.origin.x + view.frame.size.width
 }

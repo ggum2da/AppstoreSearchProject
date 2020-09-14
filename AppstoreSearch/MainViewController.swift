@@ -199,7 +199,7 @@ class MainViewController: UITableViewController {
             cell.openBtn.accessibilityIdentifier = String(appData.trackId)
             
             // rating
-            let view = self.rateWithStar(rate:appData.averageUserRating)
+            let view = rateWithStar(frame: CGRect(x: 0, y: 0, width: 50, height: 20), rate:appData.averageUserRating)
             cell.ratingView.addSubview(view)
             
             
@@ -324,64 +324,6 @@ class MainViewController: UITableViewController {
 //        return false
 //    }
     
-    // MARK: - ratingView
-    func rateWithStar(rate:Double) -> UIView {
-
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 60, height: 21))
-        
-        let fullCount = 5
-        let fullStarCount = floor(rate)
-        let halfStarWidth = round((rate-fullStarCount) * 100) / 100
-        //let emptyStarCount = floor(Double(fullCount) - fullStarCount - halfStarWidth)
-        
-        let fullStar = UIImage(named: "fullStar")
-        let emptyStar = UIImage(named: "emptyStar")
-        
-        var star = UIImageView()
-        
-        var image = UIImage()
-        
-        // fullStar와 emptyStar를 그려준다
-        for i in 0..<fullCount {
-            if i < Int(fullStarCount) {
-                image = fullStar!
-            }else {
-                image = emptyStar!
-            }
-            
-            let imageView = UIImageView(image: image)
-            imageView.frame = CGRect(x: attachViewHorizontal(from: star)+2, y: 5, width: 10, height: 10)
-            imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-            imageView.tintColor = .systemGray4
-            view.addSubview(imageView)
-
-            imageView.tag = 100+i
-            
-            star = imageView
-        }
-        
-        // halfStar가 이미지를 emptyStar 위에 덮어준다
-        if let emptyStarImageView = view.viewWithTag(100+Int(fullStarCount)) {
-            
-            let offsetX = emptyStarImageView.frame.origin.x
-            
-            let halfStarImageView = UIImageView(image: fullStar)
-            halfStarImageView.frame = CGRect(x: offsetX, y: 5, width: 10, height: 10)
-            halfStarImageView.image = halfStarImageView.image?.withRenderingMode(.alwaysTemplate)
-            halfStarImageView.tintColor = .systemGray4
-            view.addSubview(halfStarImageView)
-
-            let mask = CALayer()
-            mask.contents = fullStar
-            mask.frame = CGRect(x: 0, y: 0, width: 10*halfStarWidth, height: 10)
-            mask.backgroundColor = UIColor.black.cgColor
-            halfStarImageView.layer.mask = mask
-            halfStarImageView.layer.masksToBounds = true
-        }
-        
-        return view
-
-    }
 }
 
 

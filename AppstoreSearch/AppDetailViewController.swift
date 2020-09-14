@@ -86,7 +86,7 @@ class AppDetailViewController: UIViewController {
                 
                 let x = screenshotImgView == nil ? 0 : attachViewHorizontal(from: screenshotImgView!)
                 
-                let imageView = UIImageView(frame: CGRect(x: x+20, y: 0, width: 220, height: 430))
+                let imageView = UIImageView(frame: CGRect(x: x+15, y: 0, width: 300, height: 550))
                 imageView.backgroundColor = .white
                 imageView.layer.cornerRadius = 15
                 imageView.clipsToBounds = true

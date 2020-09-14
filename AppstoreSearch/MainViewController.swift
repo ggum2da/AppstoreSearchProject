@@ -204,16 +204,7 @@ class MainViewController: UITableViewController {
             
             
             // 평가 갯수
-            var ratingCount = Double(appData.userRatingCount)
-            var ratingStr = String(format: "%.0f", ratingCount)
-            if ratingCount > 10000 {
-                ratingCount = ratingCount/10000
-                ratingStr = String(format: "%.1f만", ratingCount)
-            }else if ratingCount > 1000 {
-                ratingCount = ratingCount/1000
-                ratingStr = String(format: "%.1f천", ratingCount)
-            }
-            cell.ratingLabel.text = ratingStr
+            cell.ratingLabel.text = ratingNum(rate: Double(appData.userRatingCount))
             
             // 앱 아이콘
             cell.appIcon.downloadAppIcon(imageUrl: appData.artworkUrl100, id: String(appData.trackId))

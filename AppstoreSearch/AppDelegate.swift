@@ -71,9 +71,9 @@ func rateWithStar(frame:CGRect, rate:Double) -> UIView {
     
     var image = UIImage()
     
-    let width = frame.size.width/5
+    //let width = frame.size.width/5
     let height = frame.size.height-10
-    let gapMargin = floor(width/5)
+    let gapMargin = floor(height/5)
     
     // fullStar와 emptyStar를 그려준다
     for i in 0..<fullCount {
@@ -84,7 +84,7 @@ func rateWithStar(frame:CGRect, rate:Double) -> UIView {
         }
         
         let imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: attachViewHorizontal(from: star)+gapMargin, y: 5, width: width, height: height)
+        imageView.frame = CGRect(x: attachViewHorizontal(from: star)+gapMargin, y: 5, width: height, height: height)
         imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
         imageView.tintColor = .systemGray4
         view.addSubview(imageView)
@@ -100,14 +100,14 @@ func rateWithStar(frame:CGRect, rate:Double) -> UIView {
         let offsetX = emptyStarImageView.frame.origin.x
         
         let halfStarImageView = UIImageView(image: fullStar)
-        halfStarImageView.frame = CGRect(x: offsetX, y: 5, width: width, height: height)
+        halfStarImageView.frame = CGRect(x: offsetX, y: 5, width: height, height: height)
         halfStarImageView.image = halfStarImageView.image?.withRenderingMode(.alwaysTemplate)
         halfStarImageView.tintColor = .systemGray4
         view.addSubview(halfStarImageView)
 
         let mask = CALayer()
         mask.contents = fullStar
-        mask.frame = CGRect(x: 0, y: 0, width: width*CGFloat(halfStarWidth), height: height)
+        mask.frame = CGRect(x: 0, y: 0, width: height*CGFloat(halfStarWidth), height: height)
         mask.backgroundColor = UIColor.black.cgColor
         halfStarImageView.layer.mask = mask
         halfStarImageView.layer.masksToBounds = true
@@ -115,6 +115,22 @@ func rateWithStar(frame:CGRect, rate:Double) -> UIView {
     
     return view
 
+}
+
+func ratingNum(rate:Double) -> String {
+    
+    var ratingCount = rate
+    
+    var ratingStr = String(format: "%.0f", ratingCount)
+    if ratingCount > 10000 {
+        ratingCount = ratingCount/10000
+        ratingStr = String(format: "%.1f만", ratingCount)
+    }else if ratingCount > 1000 {
+        ratingCount = ratingCount/1000
+        ratingStr = String(format: "%.1f천", ratingCount)
+    }
+    
+    return ratingStr
 }
 
 // MARK: - View 이어붙이기

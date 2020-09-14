@@ -13,25 +13,36 @@ class AppDetailViewController: UIViewController {
     
     var appData:AppDataModel?
     
+    // 메인 스크롤뷰, 컨텐츠 뷰
     @IBOutlet weak var mainScrollView: UIScrollView!
     @IBOutlet weak var mainContentView: UIView!
     
+    // 아이콘 이미지, 타이틀, 서브타이틀, 열기버튼
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subTitleLabel: UILabel!
     @IBOutlet weak var openBtn: UIButton!
     
-    @IBOutlet weak var infoScrBackView: UIView!
-    @IBOutlet weak var infoScrView: UIScrollView!
-    @IBOutlet weak var infoScrContentView: UIView!
+    // 평가 및 별점, 순위 및 카테고리, 연령
+    @IBOutlet weak var infoBackView: UIView!
+    @IBOutlet weak var avrRatingLabel: UILabel!
+    @IBOutlet weak var ratingView: UIView!
+    @IBOutlet weak var ratingLabel: UILabel!
     
+    @IBOutlet weak var rankLabel: UILabel!
+    @IBOutlet weak var cateLabel: UILabel!
     
+    @IBOutlet weak var contentAgeLabel: UILabel!
+    
+    // 버전, 시간, 버전 기록 버튼
     @IBOutlet weak var versionLabel: UILabel!
     @IBOutlet weak var agoLabel: UILabel!
     @IBOutlet weak var historyBtn: UIButton!
     
+    // 업데이트 내용
     @IBOutlet weak var releaseNoteLabel: UILabel!
     
+    // 미리보기
     @IBOutlet weak var screenScrBackView: UIView!
     @IBOutlet weak var screenScrView: UIScrollView!
     @IBOutlet weak var screenScrContentView: UIView!
@@ -56,6 +67,21 @@ class AppDetailViewController: UIViewController {
         self.subTitleLabel.text = appData?.artistName
         self.versionLabel.text = appData?.version
         self.openBtn.accessibilityIdentifier = String(appData?.trackId ?? 0)
+        
+        // 평균 평가 점수 및 별점
+        let rating = round(appData!.averageUserRating * 10) / 10
+        self.avrRatingLabel.text = String(rating)
+        let view = rateWithStar(frame: CGRect(x: 0, y: 0, width: 100, height: 25), rate: appData?.averageUserRating ?? 0)
+        self.ratingView.addSubview(view)
+        
+        // 누적 평점
+        self.ratingLabel.text = ratingNum(rate: Double(appData?.userRatingCount ?? 0))+"개의 평가"
+        
+        // 앱 순위 및 카테고리
+        
+        
+        // 연령
+        
         
         // 업데이트 내용
         if appData?.releaseNotes == nil || appData?.releaseNotes == "" {

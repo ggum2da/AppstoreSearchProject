@@ -15,6 +15,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // 저장된 날짜와 오늘 날짜가 다르면 다운로드 받은 이미지 삭제
+        let savedDate = UserDefaults.standard.value(forKey: "savedDate") as? String
+        
+        let todayDate = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd"
+        let todayString = dateFormatter.string(from: todayDate)
+        
+        if savedDate != todayString {
+            // tmp Directory Delete
+            try? FileManager.default.removeItem(atPath: NSTemporaryDirectory())
+        }
+        
+        UserDefaults.standard.set(todayString, forKey: "savedDate")
+        UserDefaults.standard.synchronize()
+        
         return true
     }
 
@@ -34,6 +51,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 }
+
+let APP_OPEN_URL = "itms-apps://itunes.apple.com/app/apple-store/%@?mt=8"
 
 func attachViewHorizontal(from view:UIView) -> CGFloat {
     return view.frame.origin.x + view.frame.size.width

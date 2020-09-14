@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Wl7-M8-qpB">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Wl7-M8-qpB">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
@@ -152,7 +152,7 @@
                                                 <constraint firstAttribute="width" constant="70" id="O8J-fe-Bzt"/>
                                                 <constraint firstAttribute="height" constant="25" id="yqM-yt-gaI"/>
                                             </constraints>
-                                            <state key="normal" title="open"/>
+                                            <state key="normal" title="열기"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                                     <integer key="value" value="15"/>
@@ -257,7 +257,6 @@
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="xSK-Sm-Dwm">
                                                 <rect key="frame" x="15" y="15" width="120" height="120"/>
-                                                <color key="backgroundColor" systemColor="systemOrangeColor" red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="120" id="OmE-rC-gX9"/>
                                                     <constraint firstAttribute="width" constant="120" id="Rec-WR-YXu"/>
@@ -309,6 +308,9 @@
                                                         <integer key="value" value="15"/>
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
+                                                <connections>
+                                                    <action selector="openActionWithSender:" destination="81u-lJ-V3K" eventType="touchUpInside" id="g65-oP-dMY"/>
+                                                </connections>
                                             </button>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IhP-ee-aQK" userLabel="Info Scroll Back View">
                                                 <rect key="frame" x="15" y="143" width="384" height="110"/>
@@ -420,7 +422,6 @@
                                                         <subviews>
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="19D-do-d2m">
                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="422.5"/>
-                                                                <color key="backgroundColor" systemColor="systemTealColor" red="0.35294117650000001" green="0.7843137255" blue="0.98039215690000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             </view>
                                                         </subviews>
                                                         <constraints>
@@ -433,7 +434,6 @@
                                                         </constraints>
                                                     </scrollView>
                                                 </subviews>
-                                                <color key="backgroundColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <constraints>
                                                     <constraint firstItem="KfS-Bd-wvq" firstAttribute="top" secondItem="Odg-tv-SDH" secondAttribute="top" id="IBY-FI-wk1"/>
                                                     <constraint firstAttribute="bottom" secondItem="KfS-Bd-wvq" secondAttribute="bottom" id="RUR-Ty-MxP"/>
@@ -444,7 +444,6 @@
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cGX-DT-P2z" customClass="DescriptionView" customModule="AppstoreSearch" customModuleProvider="target">
                                                 <rect key="frame" x="15" y="847.5" width="384" height="0.0"/>
-                                                <color key="backgroundColor" systemColor="systemGray6Color" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z3y-8q-eH2" userLabel="Line">
                                                 <rect key="frame" x="15" y="361.5" width="384" height="1"/>
@@ -525,7 +524,6 @@
                     <connections>
                         <outlet property="agoLabel" destination="Wtv-W3-Tja" id="ra7-os-s2i"/>
                         <outlet property="descriptionView" destination="cGX-DT-P2z" id="LbE-h3-pfb"/>
-                        <outlet property="goBtn" destination="KFZ-9Z-40C" id="SYW-r8-nRX"/>
                         <outlet property="historyBtn" destination="2NM-3V-EMx" id="2jH-hD-QCp"/>
                         <outlet property="iconImageView" destination="xSK-Sm-Dwm" id="R5F-rY-wz9"/>
                         <outlet property="infoScrBackView" destination="IhP-ee-aQK" id="3DA-20-SHW"/>
@@ -533,6 +531,7 @@
                         <outlet property="infoScrView" destination="15x-JM-BNs" id="KEJ-lL-cI1"/>
                         <outlet property="mainContentView" destination="fhc-Sa-tcR" id="ev5-g5-U3t"/>
                         <outlet property="mainScrollView" destination="yj7-ho-r1N" id="05n-fP-bd5"/>
+                        <outlet property="openBtn" destination="HBv-lW-Ff7" id="39H-E5-v6w"/>
                         <outlet property="releaseNoteLabel" destination="YYx-bl-s5d" id="xWm-3M-uCV"/>
                         <outlet property="screenScrBackView" destination="Odg-tv-SDH" id="WSH-fn-BYG"/>
                         <outlet property="screenScrContentView" destination="19D-do-d2m" id="7OM-iJ-Cvp"/>
@@ -551,7 +550,7 @@
             <objects>
                 <navigationController id="Wl7-M8-qpB" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="SGm-Gv-Vax">
-                        <rect key="frame" x="0.0" y="44" width="414" height="104.5"/>
+                        <rect key="frame" x="0.0" y="44" width="414" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>

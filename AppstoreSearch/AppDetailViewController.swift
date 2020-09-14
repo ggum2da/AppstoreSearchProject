@@ -19,7 +19,7 @@ class AppDetailViewController: UIViewController {
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subTitleLabel: UILabel!
-    @IBOutlet weak var goBtn: UIButton!
+    @IBOutlet weak var openBtn: UIButton!
     
     @IBOutlet weak var infoScrBackView: UIView!
     @IBOutlet weak var infoScrView: UIScrollView!
@@ -39,6 +39,7 @@ class AppDetailViewController: UIViewController {
     
     @IBOutlet weak var descriptionView: DescriptionView!
     
+    var trackId = ""
     
     // MARK: -
     override func viewWillAppear(_ animated: Bool) {
@@ -54,20 +55,33 @@ class AppDetailViewController: UIViewController {
         self.titleLabel.text = appData?.trackName
         self.subTitleLabel.text = appData?.artistName
         self.versionLabel.text = appData?.version
+        self.openBtn.accessibilityIdentifier = String(appData?.trackId ?? 0)
         
         // 업데이트 내용
-        self.releaseNoteLabel.text = appData?.releaseNotes
+        if appData?.releaseNotes == nil || appData?.releaseNotes == "" {
+            
+            self.releaseNoteLabel.isHidden = true
+            self.releaseNoteLabel.snp.updateConstraints { (maker) in
+                maker.height.equalTo(1)
+            }
+        }else{
+            self.releaseNoteLabel.text = appData?.releaseNotes
+        }
+        
         
         // 앱 소개 내용
         self.descriptionView.label.text = appData?.description
         self.descriptionView.moreBtn.addTarget(self, action: #selector(moreAction), for: .touchUpInside)
         self.descriptionView.moreBtn.accessibilityIdentifier = "descriptionView"
         
-        self.iconImageView.downloadImageWithLoad(imageUrl: appData?.artworkUrl512)
+        trackId = String(appData?.trackId ?? 0)
+        
+        self.iconImageView.downloadAppIcon(imageUrl: appData?.artworkUrl512, id: trackId)
         
         if let urls = appData?.screenshotUrls {
             
             // 스크린샷 갯수 만큼 스크린샷 이미지 뷰 생성
+            var i = 0
             for url in urls {
                 
                 let x = screenshotImgView == nil ? 0 : attachViewHorizontal(from: screenshotImgView!)
@@ -79,9 +93,11 @@ class AppDetailViewController: UIViewController {
                 imageView.contentMode = .scaleAspectFill
                 screenScrContentView.addSubview(imageView)
                 
-                imageView.downloadImageWithLoad(imageUrl: url)
+                imageView.downloadScreenshot(imageUrl: url, id: trackId, tag: i)
                 
                 self.screenshotImgView = imageView
+                
+                i += 1
             }
             
             // 스크린샷 스크롤 컨텐츠 사이즈 세팅
@@ -95,6 +111,8 @@ class AppDetailViewController: UIViewController {
         }
     }
     
+    
+    // MARK: - Button Action
     @objc func moreAction(sender:UIButton) {
         
         if sender.accessibilityIdentifier == "descriptionView" {
@@ -105,5 +123,12 @@ class AppDetailViewController: UIViewController {
         
         sender.isHidden = true
         
+    }
+    
+    // MARK: - Button Action
+    @IBAction func openAction(sender:UIButton) {
+        let id = String(sender.accessibilityIdentifier!)
+        let url = String(format: APP_OPEN_URL, id)
+        UIApplication.shared.open(URL(string: url)!, options: [:], completionHandler: nil)
     }
 }

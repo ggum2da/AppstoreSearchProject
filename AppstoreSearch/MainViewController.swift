@@ -13,7 +13,6 @@ import SnapKit
 class MainViewController: UITableViewController {
     
     let APPSTORE_SEARCH_DOMAIN = "https://itunes.apple.com/search"
-    let APP_OPEN_URL = "itms-apps://itunes.apple.com/app/apple-store/%@?mt=8"
     
     var recentlyWords = [String]()      // 최근 검색어
     var filteredWords = [String]()      // 필터링 검색어
@@ -38,11 +37,10 @@ class MainViewController: UITableViewController {
         return searchController
     }()
     
+    var trackId = ""
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        //let path = NSHomeDirectory()
-        //print(path)
         
     }
     
@@ -103,8 +101,12 @@ class MainViewController: UITableViewController {
                                 let data = try! JSONSerialization.data(withJSONObject: item, options: .prettyPrinted)
                                 
                                 let jsonDecoder = JSONDecoder()
-                                let decodedData = try! jsonDecoder.decode(AppDataModel.self, from: data)
-                                self.results.append(decodedData)
+                                do {
+                                    let decodedData = try jsonDecoder.decode(AppDataModel.self, from: data)
+                                    self.results.append(decodedData)
+                                } catch {
+                                    print(error.localizedDescription)
+                                }
                             }
                 
                             DispatchQueue.main.async {
@@ -114,7 +116,6 @@ class MainViewController: UITableViewController {
                                 self.searchController.isActive = true
                                 
                                 self.tableView.reloadData()
-                                self.view.layoutIfNeeded()
                             }
                         }
                     }
@@ -195,8 +196,6 @@ class MainViewController: UITableViewController {
             cell.subTitleLabel.text = appData.sellerName
             
             // Open 버튼
-            let btnTitle = self.openApps(id: String(appData.trackId)) == false ? "받기" : "열기"
-            cell.openBtn.setTitle(btnTitle, for: .normal)
             cell.openBtn.accessibilityIdentifier = String(appData.trackId)
             
             // rating
@@ -217,7 +216,7 @@ class MainViewController: UITableViewController {
             cell.ratingLabel.text = ratingStr
             
             // 앱 아이콘
-            cell.appIcon.downloadImageWithLoad(imageUrl: appData.artworkUrl100)
+            cell.appIcon.downloadAppIcon(imageUrl: appData.artworkUrl100, id: String(appData.trackId))
             
             
             // 스크린샷
@@ -229,9 +228,9 @@ class MainViewController: UITableViewController {
                 let url = screenshotUrls[i]
                 
                 switch i {
-                case 0: cell.screenshot_1.downloadImageWithLoad(imageUrl: url)
-                case 1: cell.screenshot_2.downloadImageWithLoad(imageUrl: url)
-                case 2: cell.screenshot_3.downloadImageWithLoad(imageUrl: url)
+                case 0: cell.screenshot_1.downloadScreenshot(imageUrl: url, id: String(appData.trackId), tag: i)
+                case 1: cell.screenshot_2.downloadScreenshot(imageUrl: url, id: String(appData.trackId), tag: i)
+                case 2: cell.screenshot_3.downloadScreenshot(imageUrl: url, id: String(appData.trackId), tag: i)
                 default: break
                 }
             }
@@ -315,16 +314,17 @@ class MainViewController: UITableViewController {
         UIApplication.shared.open(URL(string: url)!, options: [:], completionHandler: nil)
     }
     
-    // MARK: - Check Installed App
-    func openApps(id:String) -> Bool {
-        //itms-apps://itunes.apple.com/app/apple-store/%@?mt=8"
-        let url = String(format: APP_OPEN_URL, id)
-        if UIApplication.shared.canOpenURL(URL(string: url)!) {
-            return true
-        }
-        return false
-    }
+//    // MARK: - Check Installed App
+//    func openApps(id:String) -> Bool {
+//        //itms-apps://itunes.apple.com/app/apple-store/%@?mt=8"
+//        let url = String(format: APP_OPEN_URL, id)
+//        if UIApplication.shared.canOpenURL(URL(string: url)!) {
+//            return true
+//        }
+//        return false
+//    }
     
+    // MARK: - ratingView
     func rateWithStar(rate:Double) -> UIView {
 
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 60, height: 21))
@@ -350,8 +350,9 @@ class MainViewController: UITableViewController {
             }
             
             let imageView = UIImageView(image: image)
-            imageView.backgroundColor = .white
             imageView.frame = CGRect(x: attachViewHorizontal(from: star)+2, y: 5, width: 10, height: 10)
+            imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+            imageView.tintColor = .systemGray4
             view.addSubview(imageView)
 
             imageView.tag = 100+i
@@ -365,8 +366,9 @@ class MainViewController: UITableViewController {
             let offsetX = emptyStarImageView.frame.origin.x
             
             let halfStarImageView = UIImageView(image: fullStar)
-            halfStarImageView.backgroundColor = .white
             halfStarImageView.frame = CGRect(x: offsetX, y: 5, width: 10, height: 10)
+            halfStarImageView.image = halfStarImageView.image?.withRenderingMode(.alwaysTemplate)
+            halfStarImageView.tintColor = .systemGray4
             view.addSubview(halfStarImageView)
 
             let mask = CALayer()

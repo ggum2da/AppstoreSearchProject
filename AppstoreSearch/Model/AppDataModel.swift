@@ -30,6 +30,7 @@ struct AppDataModel: Codable {
     var genres:[String]
     var screenshotUrls:[String]    // 스크린샷
     var languageCodesISO2A:[String] // 언어
+    var bundleId:String             // 번들 ID
     
     
 //    init(from decoder: Decoder) throws {
